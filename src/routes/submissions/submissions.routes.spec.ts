@@ -1,7 +1,9 @@
 import * as request from 'supertest';
 import * as express from 'express';
 import { plainToClass } from 'class-transformer';
-
+import { Readable } from '../../models/internal/DS';
+import { runScript } from '../../util/scripts/scripting';
+import { attemptJSONParse } from '../../util/utils';
 import { Child, Submissions } from '../../database/entity';
 import { submissionRoutes } from './submissions.routes';
 
@@ -91,7 +93,8 @@ describe('GET /submissions/:week', () => {
 });
 
 describe('POST /submissions', () => {
-    it('should return 201 on creation', async () => {
+    // Working submission test prior to DS integration
+    it.skip('should return 201 on creation', async () => {
         await request(app)
             .post('/submissions')
             .send({
@@ -121,8 +124,30 @@ describe('POST /submissions', () => {
                     page4: '',
                     page5: '',
                 },
-            });
+            })
+            .expect(201);
         expect(body.transcribed.images[0].trim()).toBe('no image');
+    });
+
+    it('should return readability scores', async () => {
+        const { body } = await request(app)
+            .post('/submissions')
+            .send({
+                storyText: '',
+                illustration: '',
+                story: {
+                    page1: noImage,
+                    page2: '',
+                    page3: '',
+                    page4: '',
+                    page5: '',
+                },
+            })
+            .expect(201);
+
+        const read_stats = await readable({ story: body.transcribed.images[0] });
+
+        expect(read_stats[0]).toHaveProperty(['smog_index']);
     });
 
     it('should return 400 if already exists', async () => {
@@ -158,3 +183,11 @@ describe('DELETE /submissions/:week', () => {
             .expect(404);
     });
 });
+
+function readable(story: Readable) {
+    return runScript(
+        './src/util/scripts/readability.py', // Specifies the script to use, the path is relative to the directory the application is started from
+        story, // The data to pass into stdin of the script
+        (out: any) => out.map(attemptJSONParse) // A function to take the stdout of the script
+    );
+}
