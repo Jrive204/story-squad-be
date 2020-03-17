@@ -30,18 +30,20 @@ export class MatchInfoRepository {
                 submissions = res;
                 console.log(submissions)
                 student1.story = submissions.filter(
-                    (submission) => submission['childId'] === student1id
+                    (submission) => submission.childId === student1id && submission.type === 'story'
+                    
                 );
+                console.log(student1)
                 student1.illustration = submissions.filter(
                     (submission) =>
-                        submission['childId'] === student1id
+                    submission.childId === student1id && submission.type === 'illustration'
                 );
                 student2.story = submissions.filter(
-                    (submission) => submission['childId'] === student2id
+                    (submission) => submission.childId === student2id && submission.type === 'story'
                 );
                 student2.illustration = submissions.filter(
                     (submission) =>
-                        submission['childId'] === student2id
+                        submission.childId === student2id && submission.type === 'illustration'
                 )
                 
                 return this.manager.findOne(Child, {
@@ -67,6 +69,11 @@ export class MatchInfoRepository {
                 
                 
         };
-        
+        updatePoints(submissionId: number, submissionPoints: number){
+            return this.manager.findOne(Submissions, { where: { id: submissionId } })
+                .then(res => {
+                    return this.manager.update(Submissions, { where: { id: submissionId } }, { points: res.points + submissionPoints })
+                })
+        }
     }
 

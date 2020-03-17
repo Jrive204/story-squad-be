@@ -61,19 +61,27 @@ battlesRoutes.get('/battles', Only(Child), async (req, res) => {
 
 battlesRoutes.put('/battles', Only(Child), async (req, res) => {
     try {
-        //receive the requestwith point allocation score and put the request to add score
-        // request should consist of
-        // story1id, story1points, story2id, story2points
-        // pic1id, pic1points, pic2id, pic2points
 
-        //destructuring the request
+    //     //receive the requestwith point allocation score and put the request to add score
+    //     // request should consist of
+    //     // story1id, story1points, story2id, story2points
+    //     // pic1id, pic1points, pic2id, pic2points
 
-        const { id } = req.user as Child;
+    //     //destructuring the request
 
-        //const result1 = await getRepository(Submission, connection())
-        //.update({ allocation_point: current_point + storypoint })
-        //.where({ id: story1id })
+    //     const { id } = req.user as Child;
 
+        //I didn't put await infront of each one because I want them all to run concurrently
+        // const story1result = getCustomRepository(MatchInfoRepository, connection()).updatePoints(story1id, story1points)
+        // const story2result = getCustomRepository(MatchInfoRepository, connection()).updatePoints(story2id, story2points)
+        // const drawing1result = getCustomRepository(MatchInfoRepository, connection()).updatePoints(drawing1id, drawing1points)
+        // const drawing2result = getCustomRepository(MatchInfoRepository, connection()).updatePoints(drawing2id, drawing2points)
+
+        // //could still be deconstructed by looping over objects to make the code cleaner
+        
+        // const result = Promise.all([story1result, story2result, drawing1result, drawing2result])
+
+    
         res.status(200).json({ message: 'success' });
     } catch (err) {
         res.status(500).json({ message: err.toString() });
